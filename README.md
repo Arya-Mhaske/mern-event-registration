@@ -1,54 +1,115 @@
-# MERN Event registration (minimal)
+# Minimal MERN Event Registration App
 
-Single-page React client and Express + Mongoose API. Guests pick an event and register with **full name**, **email**, and optional **phone**. Same deployment shape as the other small MERN apps in this workspace.
+## Structure
 
-## Behavior
+- `server` - Node.js, Express, MongoDB (Mongoose), Event CRUD API
+- `client` - React (Vite), Axios UI for add/list/delete events
+## Initial Setup
 
-- **Events**: title, description, date/time, location, optional **capacity** (`maxAttendees`). Seeded sample events when the database is empty.
-- **Registrations**: stored per event; **one registration per email per event** (unique index). If capacity is set and reached, new sign-ups get **409**.
-- **Delete event** removes its registrations as well.
+clone the repository by
+git clone repo_url
 
-## Stack
+# update packages
+sudo apt update
 
-Node **18+ / 20 / 22** (`engines` in `package.json`). Dependencies use pinned semver ranges (no `latest`).
 
-## Local dev
+DO NOT sudo apt install node as it will install an older version of node incompatible with vite
 
-1. MongoDB running (local or `docker compose up mongo -d`).
+## IMPORTANT! Install Node Version Manager first (NVM) and use it to install Node Version 22.x.x
+1. curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+2. nvm install 22
+3. nvm use 22
 
-2. **API**
+# TROUBLESHOOTING DEPENDENCY HELL
 
-   ```bash
-   cd server
-   cp .env.example .env
-   npm install
-   npm run dev
-   ```
+just try nuking all packages by either 
 
-3. **Client** (Vite proxies `/api` to port 5000)
+rm -rf node_modules
 
-   ```bash
-   cd client
-   npm install
-   npm run dev
-   ```
+OR
 
-## API
+rm -rf node_modules package-lock.json
 
-| Method | Path | Notes |
-|--------|------|--------|
-| GET | `/api/health` | Liveness |
-| CRUD | `/api/events` | List (by date), create, read, update, delete |
-| GET, POST, DELETE | `/api/registrations` | List (optional `?eventId=`), create body `{ eventId, fullName, email, phone? }`, delete `:id` |
+AND THEN
 
-## Docker
+npm install
 
-```bash
-docker compose up --build
-```
+This usually works for all errors; and doing this is recommended every time you are trying to deploy this repo for the first time even if there may not be dependency errors. First, npm intall using node v 22+ and then nuke using the above commands and reinstall. everything should work fine then.
 
-Open `http://localhost:5000`. If port **27017** is already in use, adjust the Mongo port mapping or stop the other instance.
+## AZURE INBOUND RULES
+under the instance's networking (firewall) settings, allow the following port configurations to accept traffic from all IP's
 
-## Production (no Docker)
+{
+port: 5173,
 
-Build the client, copy `dist` into `server/client-dist`, set `NODE_ENV=production` and `MONGO_URI`, then `node index.js` from `server`.
+protocol: any,
+
+source: any,
+
+destination: any
+
+}
+
+{
+port: 5000,
+
+protocol: any,
+
+source: any,
+
+destination: any
+
+}
+
+# 5173: frontend
+
+# 5000: server
+
+you can find this on your azure account.
+
+## Backend setup
+
+1. Go to `server`
+2. Install dependencies:
+   - `npm install`
+3. Create `.env` and paste your credentials
+
+   the .env shall contain two things
+   {
+   PORT=5000,
+ 
+   MONGO_URI=<connection_string>
+   }
+   
+5. Run server:
+   - `node index.js`
+
+Server runs at `http://localhost:5000`
+
+## Frontend setup
+
+# !IMPORTANT PREREQUISITE
+right now the frontend might not be able to talk to backend server because frontend API requests use localhost:5000.
+
+use either LOCALHOST or PUBLIC_IP; try localhost first if it fails resort to public IP of the instance
+
+where would you change this configuration?
+
+# check in /client/
+
+edit the vite.config.js file and update the 
+
+TARGET to "http:<public_ip> OR <localhost>:SERVER_PORT(5000)"
+
+and save.
+(btw this is already done for you)
+
+now your frontend should be configured to talkto your backend server.
+
+1. Go to `client`
+2. Install dependencies:
+   - `npm install`
+3. Run frontend:
+   - `npm run dev`
+
+Client runs at `http://localhost:5173`
