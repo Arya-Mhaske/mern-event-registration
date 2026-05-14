@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 
-const apiOrigin = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
+const apiOrigin = "";
 const EVENTS_URL = `${apiOrigin}/api/events`;
 const REG_URL = `${apiOrigin}/api/registrations`;
 
